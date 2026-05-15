@@ -19,48 +19,46 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 @Controller
+@RequiredArgsConstructor
 public class PostController {
     private final PostService postService;
 
-    @GetMapping("/posts/write")
-    public String showWrite(WriteForm form) {
-        return "post/post/write";
+    @ModelAttribute("siteName")
+    public String siteName() {
+        return "커뮤니티 사이트 A";
     }
+
 
     @AllArgsConstructor
     @Getter
     public static class WriteForm {
-        @NotBlank(message = "1-제목을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "2-제목은 2자 이상, 20자 이하로 입력가능합니다.")
+        @NotBlank(message = "01-제목을 입력해주세요.")
+        @Size(min = 2, max = 20, message = "02-제목은 2자 이상, 20자 이하로 입력가능합니다.")
         private String title;
-        @NotBlank(message = "3-내용을 입력해주세요.")
-        @Size(min = 2, max = 20, message = "4-내용은 2자 이상, 20자 이하로 입력가능합니다.")
+        @NotBlank(message = "03-내용을 입력해주세요.")
+        @Size(min = 2, max = 20, message = "04-내용은 2자 이상, 20자 이하로 입력가능합니다.")
         private String content;
+    }
+
+    @GetMapping("/posts/write")
+    public String showWrite(@ModelAttribute("form") WriteForm form) {
+        return "post/post/write";
     }
 
     @PostMapping("/posts/doWrite")
     @Transactional
-    public String write(@Valid WriteForm form,
-                        BindingResult bindingResult,
-                        Model model) {
-        if (bindingResult.hasErrors()) {
-            String errorMessage = bindingResult
-                    .getFieldErrors()
-                    .stream()
-                    .map(fieldError -> (fieldError.getField() + "-" + fieldError.getDefaultMessage()).split("-", 3))
-                    .map(field -> "<!--%s--><li data-error-field-name=\"%s\">%s</li>".formatted(field[1], field[0], field[2]))
-                    .sorted()
-                    .collect(Collectors.joining("\n"));
+    public String write(
+            @ModelAttribute("form") @Valid WriteForm form,
+            BindingResult bindingResult,
+            Model model
+    ) {
+        if (bindingResult.hasErrors()) return "post/post/write";
 
-            model.addAttribute("errorMessage", errorMessage);
-
-            return "post/post/write";
-        }
         Post post = postService.write(form.getTitle(), form.getContent());
 
         model.addAttribute("post", post);
+
         return "post/post/writeDone";
     }
 }
