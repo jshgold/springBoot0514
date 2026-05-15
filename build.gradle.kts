@@ -33,6 +33,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-h2console")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testAnnotationProcessor("org.projectlombok:lombok")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 }
 
 tasks.withType<Test> {
